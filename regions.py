@@ -57,7 +57,7 @@ class DivideRegion(Region):
 
     def partialvalid(self, squares):
         s = sorted(squares, reverse=True)
-        return s[0] * self.target % product(s[1:]) == 0 or self.target > product(s)
+        return True#s[0] * self.target % product(s[1:]) == 0 or self.target > product(s)
 
 class StraightRegion(Region):
     def __init__(self, positions):
