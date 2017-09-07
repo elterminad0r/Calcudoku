@@ -5,9 +5,9 @@ A simple brute force solver for an 8\*8 'calcudoku'. A `Calcudoku` is given a nu
 
 operation | explanation
 --- | ---
-+ | The numbers should add up to 6.
-- | The largest number subtract *all* the rest of the numbers should be 6.
-* | The product of the numbers should be 6.
+\+ | The numbers should add up to 6.
+\- | The largest number subtract *all* the rest of the numbers should be 6.
+\* | The product of the numbers should be 6.
 / | The largest number divided by *all* the rest of the numbers should be 6.
 
 These regions are modelled in a pretty nicely structured OO model.
