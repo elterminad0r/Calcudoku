@@ -6,7 +6,7 @@ columns, or regions of arithmetically related numbers.
 import abc
 
 from functools import reduce
-from operator import mul, floordiv
+from operator import mul
 
 def product(l):
     """

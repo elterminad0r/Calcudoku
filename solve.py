@@ -7,7 +7,6 @@ and also it avoids unnecessary allocation overhead.
 """
 
 from sys import stderr
-from time import time
 
 progress_wait = 0
 PROGRESS_RESET = 1000

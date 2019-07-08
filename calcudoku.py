@@ -13,8 +13,6 @@ import argparse
 if sys.version_info < (3,):
     sys.exit("Needs Python 3")
 
-from functools import partial
-
 from solve import solve
 from input_output import read_regions, read_board, invert_regions, print_board, build_regions
 
