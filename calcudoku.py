@@ -29,15 +29,11 @@ def main():
     Tie it all together
     """
     args = get_args()
-    board = [None for _ in range(64)]
     regs = {}
     read_regions(args.calcudoku, regs)
     read_board(args.calcudoku, regs)
     lregs = invert_regions(build_regions(regs))
-    for sol in solve(board, lregs, progress=args.verbose):
-        if args.verbose:
-            print("\r{}\r".format(" " * 80), end="",
-                    file=sys.stderr, flush=True)
+    for sol in solve(lregs, progress=args.verbose):
         print_board(sol)
 
 if __name__ == "__main__":
