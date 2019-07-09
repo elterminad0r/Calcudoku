@@ -19,7 +19,7 @@ import sys
 from time import time
 from io import StringIO
 
-PROGRESS_RESET = 1000
+PROGRESS_RESET = 50000
 BAR_WIDTH = 40
 
 def progress_report(fraction, visited, start, file=sys.stderr):
@@ -55,8 +55,6 @@ def solve(regs, progress=False):
     some subsets happen to correspond to regions with some associated rules.
     """
     if progress:
-        # used to track how often to show progress report
-        progress_wait = 0
         # used to track how many board have been visited
         visited = 0
         # start time, used to calculate average rate of processing boards
@@ -69,15 +67,13 @@ def solve(regs, progress=False):
         being global.
         """
         if progress:
-            nonlocal progress_wait, visited
-            visited += 1
-            if progress_wait <= 0:
-                progress_wait = PROGRESS_RESET
+            nonlocal visited
+            if visited % PROGRESS_RESET == 0:
                 progress_report(fraction, visited, start)
-            else:
-                progress_wait -= 1
+            visited += 1
         if pos == len(board):
-            # erase current progress report
+            # erase current progress report, because we assume that execution
+            # halts while the caller processes the yielded board
             if progress:
                 # write a progress report to a mock output to determine the
                 # length, because I'm lazy and only want to keep track of a
@@ -87,6 +83,9 @@ def solve(regs, progress=False):
                 print("\r{}\r".format(" " * len(dummy_progress.getvalue())),
                         end="", file=sys.stderr, flush=True)
             yield board.copy()
+            # rewrite progress report when execution resumes.
+            if progress:
+                progress_report(fraction, visited, start)
         else:
             for i in range(1, 9):
                 board[pos] = i
@@ -99,7 +98,8 @@ def solve(regs, progress=False):
         # just so we finish on 100%.
         if progress and pos == 0:
             progress_report(1, visited, start)
-            print(file=sys.stderr)
+            print("\nTime elapsed: {:.3f}s".format(time() - start),
+                    file=sys.stderr)
     # TODO: no hardcode
     yield from _solve([None] * 64, regs, 0, 0, progress)
 
