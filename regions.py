@@ -139,5 +139,6 @@ class ColumnRegion(SudokuRegion):
 # files.
 REG_MAP = dict(zip("+-*/",
                    [PlusRegion, MinusRegion, TimesRegion, DivideRegion]))
+# TODO: really this shouldn't be hardcoded to 8
 COLUMNS = [ColumnRegion(i) for i in range(8)]
 ROWS = [RowRegion(i) for i in range(8)]

@@ -5,7 +5,7 @@ Input and output related code
 from regions import REG_MAP, COLUMNS, ROWS
 
 # str.format compatible template to format a calcudoku board
-board_temp = "\n{}".format(("{} " * 8 + "\n") * 8)
+board_temp = ("{} " * 8 + "\n") * 8
 
 def read_regions(in_file, regs):
     """

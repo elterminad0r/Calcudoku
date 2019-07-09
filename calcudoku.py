@@ -35,6 +35,9 @@ def main():
     read_board(args.calcudoku, regs)
     lregs = invert_regions(build_regions(regs))
     for sol in solve(board, lregs, progress=args.verbose):
+        if args.verbose:
+            print("\r{}\r".format(" " * 80), end="",
+                    file=sys.stderr, flush=True)
         print_board(sol)
 
 if __name__ == "__main__":

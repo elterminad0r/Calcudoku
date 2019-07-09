@@ -37,7 +37,7 @@ def solve(board, regs, pos=0, fraction=0, progress=False):
             progress_report(fraction)
         else:
             progress_wait -= 1
-    if pos == 64:
+    if pos == len(board):
         yield board
     else:
         for i in range(1, 9):
