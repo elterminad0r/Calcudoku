@@ -19,27 +19,34 @@ import sys
 from time import time
 from io import StringIO
 
-ASCII_PROG_CHARS = ">="
-UNICODE_PROG_CHARS = " ▏▎▍▌▋▊▉██"
+# copied from my ~/pybin/progress_bar.py
+
+ASCII_PROG_CHARS = ">", "=", " "
+UNICODE_PROG_CHARS = "▏▎▍▌▋▊▉█", "█", " "
 
 def format_bar(width, fraction, unicode=None, prog_chars=None):
     """
     Format just the actual progress bar given the characters, width, and
     percentage completion.
 
-    The characters should be a list-like object, where the last character is to
-    be used for the solid bar, and the first (length - 1) characters are a
-    linear progression to go through.
+    prog_chars should be a tuple of a linear progression of sub-characters for a
+    partially filled character, the character to draw a fully filled in
+    character with, and the character to fill the rest of the bar with.
+
+    Optionally, you can leave it as None and pass in `unicode` as truthy or
+    falsey to get default values for ascii or unicode-supporting terminals.
     """
     if prog_chars is None:
         if unicode is not None:
             prog_chars = UNICODE_PROG_CHARS if unicode else ASCII_PROG_CHARS
         else:
             raise ValueError("Need either to pass unicode, or pass characters")
+    progression, block, fillchar = prog_chars
     integral, fractional = divmod(width * fraction, 1)
-    return "{}{}".format(prog_chars[-1] * int(integral),
-                         prog_chars[int((len(prog_chars) - 1) * fractional)]
-                            if fractional else "")
+    return "{}{}".format(block * int(integral),
+                         progression[int(len(progression) * fractional)]
+                            if fractional else "").ljust(width, fillchar)
+
 
 def progress_report(fraction, visited, start, unicode, width, file=sys.stderr):
     """
@@ -57,12 +64,11 @@ def progress_report(fraction, visited, start, unicode, width, file=sys.stderr):
     It does also directly print the current total number of examined boards,
     just to have a little flex on big O.
     """
-    print("\r[{:<{w}}] ({:4.0%}) ~{:7.1e}/{:7.1e} b, {:7.1e} v, {:7.1e} v/s"
+    print("\r[{}] ({:4.0%}) ~{:7.1e}/{:7.1e} b, {:7.1e} v, {:7.1e} v/s"
             .format(
                 format_bar(width, fraction, unicode=unicode),
                 fraction, int(fraction * 8 ** 64), 8 ** 64,
-                visited, visited / (time() - start),
-                w=width),
+                visited, visited / (time() - start)),
           end="", file=file, flush=True)
 
 def solve(regs, progress=False, unicode=False, progress_interval=50_000,
