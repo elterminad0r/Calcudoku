@@ -14,14 +14,15 @@ module is concerned with printing pretty progress reports.
 
 # TODO: visualisation of current state, maybe one day.
 
-from sys import stderr
+import sys
+
 from time import time
 from io import StringIO
 
 PROGRESS_RESET = 1000
 BAR_WIDTH = 40
 
-def progress_report(fraction, visited, start, file=stderr):
+def progress_report(fraction, visited, start, file=sys.stderr):
     """
     Display a progress bar at a certain fraction completion.
 
@@ -84,7 +85,7 @@ def solve(regs, progress=False):
                 dummy_progress = StringIO()
                 progress_report(fraction, visited, start, file=dummy_progress)
                 print("\r{}\r".format(" " * len(dummy_progress.getvalue())),
-                        end="", file=stderr, flush=True)
+                        end="", file=sys.stderr, flush=True)
             yield board.copy()
         else:
             for i in range(1, 9):
@@ -98,6 +99,10 @@ def solve(regs, progress=False):
         # just so we finish on 100%.
         if progress and pos == 0:
             progress_report(1, visited, start)
-            print(file=stderr)
+            print(file=sys.stderr)
     # TODO: no hardcode
     yield from _solve([None] * 64, regs, 0, 0, progress)
+
+# a defense mechanism to protect me from myself
+if __name__ == "__main__":
+    sys.exit("Not a runnable module: see calcudoku.py")

@@ -80,3 +80,7 @@ def print_board(board):
     print_board
     """
     print(board_temp.format(*board))
+
+# a defense mechanism to protect me from myself
+if __name__ == "__main__":
+    sys.exit("Not a runnable module: see calcudoku.py")

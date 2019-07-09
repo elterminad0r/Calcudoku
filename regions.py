@@ -4,6 +4,7 @@ columns, or regions of arithmetically related numbers.
 """
 
 import abc
+import sys
 
 from functools import reduce
 from operator import mul
@@ -13,6 +14,27 @@ def product(l):
     Product of an iterable of numbers.
     """
     return reduce(mul, l, 1)
+
+def skip_one(l, item):
+    """
+    Yield everything from a list except for `item`, the first time it occurs.
+    """
+    it = iter(l)
+    for i in it:
+        if i == item:
+            break
+        yield i
+    yield from it
+
+def partition_max(l):
+    """
+    Partition an *list* into its maximum and all the rest. This frequently
+    comes up in calcudoku calculations, so it's useful to have defined.
+    O(n) time, which is obviously the best anyone could do, asymptotically, as
+    we must scan for the maximum. Needs to scan twice.
+    """
+    m = max(l)
+    return m, skip_one(l, m)
 
 class Region(abc.ABC):
     """
@@ -34,19 +56,17 @@ class Region(abc.ABC):
     def __repr__(self):
         return str(self)
 
-    @abc.abstractmethod
-    def fullvalid(self, squares):
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def partialvalid(self, squares):
-        raise NotImplementedError
-
     def isvalid(self, board):
         """
         Determine if a state is valid as far as this region is concerned.
-        Children should implement partialvalid and fullvalid to determine if a
-        partially or fully filled in region, respecitvely,  is valid or not.
+        Children should implement fullvalid to determine if a fully filled in
+        region, respecitvely, is valid or not.
+
+        Optionally, children can override partialvalid to determine if a
+        partially filled in region can be immediately discarded as invalid. This
+        is highly encouraged, as this enables backtracking, pruning huge swathes
+        of boards. partialvalid will only be called if there is at least one
+        filled in square in the region.
 
         It may that the caller has entered number in the appropriate range.
         """
@@ -54,6 +74,13 @@ class Region(abc.ABC):
         if len(squares) == self.size:
             return self.fullvalid(squares)
         return self.partialvalid(squares)
+
+    @abc.abstractmethod
+    def fullvalid(self, squares):
+        raise NotImplementedError
+
+    def partialvalid(self, squares):
+        return True
 
     def getsquares(self, board):
         """
@@ -86,26 +113,20 @@ class MinusRegion(Region):
     Region for subtraction
     """
     def fullvalid(self, squares):
-        s = sorted(squares, reverse=True)
-        return s[0] == sum(s[1:]) + self.target
+        m, rest = partition_max(squares)
+        return m == sum(rest) + self.target
 
-    def partialvalid(self, squares):
-        s = sorted(squares, reverse=True)
-        # TODO: not yet cleverly implemented. May not even be possible
-        return True
+    # TODO: clever partialvalid. May not even be possible
 
 class DivideRegion(Region):
     """
     Region for division
     """
     def fullvalid(self, squares):
-        s = sorted(squares, reverse=True)
-        return s[0] * self.target == product(s[1:])
+        m, rest = partition_max(squares)
+        return m * self.target == product(rest)
 
-    def partialvalid(self, squares):
-        s = sorted(squares, reverse=True)
-        # TODO: not yet cleverly implemented. May not even be possible
-        return True
+    # TODO: clever partialvalid. May not even be possible
 
 class SudokuRegion(Region):
     """
@@ -142,3 +163,7 @@ REG_MAP = dict(zip("+-*/",
 # TODO: really this shouldn't be hardcoded to 8
 COLUMNS = [ColumnRegion(i) for i in range(8)]
 ROWS = [RowRegion(i) for i in range(8)]
+
+# a defense mechanism to protect me from myself
+if __name__ == "__main__":
+    sys.exit("Not a runnable module: see calcudoku.py")

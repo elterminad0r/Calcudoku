@@ -11,9 +11,9 @@ import argparse
 # This is mostly because I get confused quite easily, with Arch packaging
 # CPython 3 as python, but PyPy 3 as pypy3.
 if sys.version_info < (3,):
-    sys.exit("Needs Python 3")
+    sys.exit("Needs Python 3, not\n\"{}\"".format(sys.version))
 
-from solve import solve
+from backtrack import solve
 from input_output import parse_board, print_board
 
 def get_args():
