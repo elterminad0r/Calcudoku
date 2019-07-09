@@ -12,17 +12,36 @@ The code doing the actual solving is probably about 20 lines. Almost all of this
 module is concerned with printing pretty progress reports.
 """
 
-# TODO: visualisation of current state, maybe one day.
+# TODO: visualisation of current state, maybe one day (ncurses??)
 
 import sys
 
 from time import time
 from io import StringIO
 
-PROGRESS_RESET = 50000
-BAR_WIDTH = 40
+ASCII_PROG_CHARS = ">="
+UNICODE_PROG_CHARS = " ▏▎▍▌▋▊▉██"
 
-def progress_report(fraction, visited, start, file=sys.stderr):
+def format_bar(width, fraction, unicode=None, prog_chars=None):
+    """
+    Format just the actual progress bar given the characters, width, and
+    percentage completion.
+
+    The characters should be a list-like object, where the last character is to
+    be used for the solid bar, and the first (length - 1) characters are a
+    linear progression to go through.
+    """
+    if prog_chars is None:
+        if unicode is not None:
+            prog_chars = UNICODE_PROG_CHARS if unicode else ASCII_PROG_CHARS
+        else:
+            raise ValueError("Need either to pass unicode, or pass characters")
+    integral, fractional = divmod(width * fraction, 1)
+    return "{}{}".format(prog_chars[-1] * int(integral),
+                         prog_chars[int((len(prog_chars) - 1) * fractional)]
+                            if fractional else "")
+
+def progress_report(fraction, visited, start, unicode, width, file=sys.stderr):
     """
     Display a progress bar at a certain fraction completion.
 
@@ -30,21 +49,24 @@ def progress_report(fraction, visited, start, file=sys.stderr):
     boards, most of which are pruned with the backtracking. It's not meant to
     suggest that boards are actually being processed at that speed. This is only
     done this way because it's really hard to guess in advance how many actual
-    board will be looked at (and it looks impressive).
+    board will be looked at (and it looks impressive). Another unfortunate
+    consequence of this is that the main progress bar is not linear - it tends
+    to jump around unpredictably. This is usually considered a feature of
+    progress bars so I'm not hugely fussed.
 
     It does also directly print the current total number of examined boards,
     just to have a little flex on big O.
     """
     print("\r[{:<{w}}] ({:4.0%}) ~{:7.1e}/{:7.1e} b, {:7.1e} v, {:7.1e} v/s"
             .format(
-                int(BAR_WIDTH * fraction) * "-", fraction,
-                int(fraction * 8 ** 64), 8 ** 64,
-                visited,
-                visited / (time() - start),
-                w=BAR_WIDTH),
+                format_bar(width, fraction, unicode=unicode),
+                fraction, int(fraction * 8 ** 64), 8 ** 64,
+                visited, visited / (time() - start),
+                w=width),
           end="", file=file, flush=True)
 
-def solve(regs, progress=False):
+def solve(regs, progress=False, unicode=False, progress_interval=50000,
+        width=40):
     """
     Solve a calcudoku in `board`, using regions defined in `regs`, going from
     position "pos".
@@ -68,8 +90,8 @@ def solve(regs, progress=False):
         """
         if progress:
             nonlocal visited
-            if visited % PROGRESS_RESET == 0:
-                progress_report(fraction, visited, start)
+            if visited % progress_interval == 0:
+                progress_report(fraction, visited, start, unicode, width)
             visited += 1
         if pos == len(board):
             # erase current progress report, because we assume that execution
@@ -79,13 +101,14 @@ def solve(regs, progress=False):
                 # length, because I'm lazy and only want to keep track of a
                 # single thing.
                 dummy_progress = StringIO()
-                progress_report(fraction, visited, start, file=dummy_progress)
+                progress_report(fraction, visited, start, unicode, width,
+                                file=dummy_progress)
                 print("\r{}\r".format(" " * len(dummy_progress.getvalue())),
                         end="", file=sys.stderr, flush=True)
             yield board.copy()
             # rewrite progress report when execution resumes.
             if progress:
-                progress_report(fraction, visited, start)
+                progress_report(fraction, visited, start, unicode, width)
         else:
             for i in range(1, 9):
                 board[pos] = i
@@ -97,7 +120,7 @@ def solve(regs, progress=False):
             board[pos] = None
         # just so we finish on 100%.
         if progress and pos == 0:
-            progress_report(1, visited, start)
+            progress_report(1, visited, start, unicode, width)
             print("\nTime elapsed: {:.3f}s".format(time() - start),
                     file=sys.stderr)
     # TODO: no hardcode
