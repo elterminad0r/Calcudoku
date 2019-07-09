@@ -65,7 +65,7 @@ def progress_report(fraction, visited, start, unicode, width, file=sys.stderr):
                 w=width),
           end="", file=file, flush=True)
 
-def solve(regs, progress=False, unicode=False, progress_interval=50000,
+def solve(regs, progress=False, unicode=False, progress_interval=50_000,
         width=40):
     """
     Solve a calcudoku in `board`, using regions defined in `regs`, going from

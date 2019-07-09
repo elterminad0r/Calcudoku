@@ -14,7 +14,7 @@ def read_regions(in_file, regs):
     Read region definitions from a calcudoku specification file. See ex.txt for
     an example.
 
-    The first section of this file should consist of a name assigment for each
+    The first section of this file should consist of a name assignment for each
     region to be used on each line. Each definition should have the form
     X=n T
     where X is the name of the group, n is the target number, T is the type of

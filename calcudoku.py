@@ -20,7 +20,7 @@ from input_output import parse_board, print_board
 
 def get_args():
     parser = argparse.ArgumentParser(
-            # juts take the first paragraph of __doc__, because I can't be asked
+            # just take the first paragraph of __doc__, because I can't be asked
             # to ship this with smartparse.py
             description=__doc__.split("\n\n")[0],
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)

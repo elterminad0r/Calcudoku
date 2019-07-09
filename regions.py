@@ -60,7 +60,7 @@ class Region(abc.ABC):
         """
         Determine if a state is valid as far as this region is concerned.
         Children should implement fullvalid to determine if a fully filled in
-        region, respecitvely, is valid or not.
+        region, respectively, is valid or not.
 
         Optionally, children can override partialvalid to determine if a
         partially filled in region can be immediately discarded as invalid. This
