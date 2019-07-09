@@ -14,7 +14,7 @@ if sys.version_info < (3,):
     sys.exit("Needs Python 3")
 
 from solve import solve
-from input_output import read_regions, read_board, invert_regions, print_board, build_regions
+from input_output import parse_board, print_board
 
 def get_args():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -29,11 +29,7 @@ def main():
     Tie it all together
     """
     args = get_args()
-    regs = {}
-    read_regions(args.calcudoku, regs)
-    read_board(args.calcudoku, regs)
-    lregs = invert_regions(build_regions(regs))
-    for sol in solve(lregs, progress=args.verbose):
+    for sol in solve(parse_board(args.calcudoku), progress=args.verbose):
         print_board(sol)
 
 if __name__ == "__main__":

@@ -2,6 +2,8 @@
 Input and output related code
 """
 
+import sys
+
 from regions import REG_MAP, COLUMNS, ROWS
 
 # str.format compatible template to format a calcudoku board
@@ -62,9 +64,19 @@ def invert_regions(regs):
             inv[p].append(r)
     return inv
 
+def parse_board(in_file):
+    """
+    Parse a whole input file, returning a mapping from tiles to regions, like
+    solve() wants.
+    """
+    regs = {}
+    read_regions(in_file, regs)
+    read_board(in_file, regs)
+    return invert_regions(build_regions(regs))
+
+
 def print_board(board):
     """
     print_board
     """
     print(board_temp.format(*board))
-
